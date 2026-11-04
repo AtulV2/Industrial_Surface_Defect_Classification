@@ -62,3 +62,4 @@ data/raw/
 ├── train/images/{class_name}/
 └── validation/images/{class_name}/
 ```
+

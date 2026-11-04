@@ -57,3 +57,4 @@ Industrial_Surface_Defect_Classification/
 | **2** | Model Training | src/train.py — loads augmented/train + raw/validation, builds MobileNetV2 hybrid, trains, saves models/ | .keras file saved, val accuracy logged |
 | **3** | Grad-CAM | src/gradcam.py — reusable function, gradients from custom_conv, overlay returned | Sample overlay saved to outputs/ |
 | **4** | Streamlit UI | src/app.py — upload → predict → side-by-side Grad-CAM | App runs locally, full flow works |
+
