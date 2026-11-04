@@ -1,184 +1,185 @@
 """
-Industrial Surface Defect Classification - Offline Augmentation Script
-Phase 1: Generates augmented variations using OpenCV and NumPy.
+augment.py — Offline Data Augmentation for NEU Surface Defect Dataset
+======================================================================
+Reads original grayscale images from data/raw/train/images/{class}/,
+copies each original to data/augmented/train/{class}/, then generates
+4 augmented variants per image using seeded random transforms.
+
+Output layout (Option B — originals + augmented in one folder):
+    data/augmented/train/
+        crazing/
+            crazing_1.bmp          <- original copy
+            crazing_1_aug_1.bmp    <- augmented variant 1
+            ...
+            crazing_1_aug_4.bmp    <- augmented variant 4
+        inclusion/ ...
+
+Usage:
+    python src/augment.py
+    python src/augment.py --raw_dir data/raw/train/images --aug_dir data/augmented/train --copies 4
 """
 
 import os
-import shutil
 import argparse
-from pathlib import Path
 import numpy as np
 import cv2
+from pathlib import Path
 
-# Set random seed at the top for reproducibility
-np.random.seed(42)
+# ── Reproducibility ────────────────────────────────────────────────────────────
+SEED = 42
+np.random.seed(SEED)
 
+# ── Augmentation helpers ───────────────────────────────────────────────────────
 
 def rotate_image(img: np.ndarray, angle_range: float = 15.0) -> np.ndarray:
-    """Randomly rotate the image within [-angle_range, +angle_range] degrees."""
-    angle = np.random.uniform(-angle_range, angle_range)
+    """Rotate image by a random angle within ±angle_range degrees."""
     h, w = img.shape[:2]
-    center = (w / 2.0, h / 2.0)
-    matrix = cv2.getRotationMatrix2D(center, angle, scale=1.0)
-    rotated = cv2.warpAffine(img, matrix, (w, h), borderMode=cv2.BORDER_REFLECT_101)
-    return rotated
+    angle = np.random.uniform(-angle_range, angle_range)
+    # Rotation matrix around the image center
+    M = cv2.getRotationMatrix2D(center=(w / 2, h / 2), angle=angle, scale=1.0)
+    # BORDER_REFLECT_101 fills empty pixels with mirrored content (avoids black borders)
+    return cv2.warpAffine(img, M, (w, h), borderMode=cv2.BORDER_REFLECT_101)
 
 
 def flip_image(img: np.ndarray, prob: float = 0.5) -> np.ndarray:
-    """Randomly flip the image horizontally with probability `prob`."""
-    if np.random.rand() < prob:
-        return cv2.flip(img, 1)  # 1 indicates horizontal flip
+    """Randomly flip image horizontally with given probability."""
+    if np.random.random() < prob:
+        return cv2.flip(img, 1)   # 1 = horizontal flip
     return img
 
 
 def adjust_brightness(img: np.ndarray, range_: float = 0.2) -> np.ndarray:
-    """Multiply pixel values by a random factor within [1 - range_, 1 + range_]."""
+    """
+    Multiply pixel values by a random factor in [1-range_, 1+range_].
+    Works on grayscale or BGR images. Clips to valid [0, 255] range.
+    """
     factor = np.random.uniform(1.0 - range_, 1.0 + range_)
-    adjusted = np.clip(img.astype(np.float32) * factor, 0, 255).astype(np.uint8)
-    return adjusted
+    # Convert to float32 for multiplication, then clip and cast back
+    brightened = np.clip(img.astype(np.float32) * factor, 0, 255).astype(np.uint8)
+    return brightened
 
 
 def translate_image(img: np.ndarray, range_: float = 0.1) -> np.ndarray:
-    """Randomly translate the image up to range_ * dimensions along x and y."""
+    """
+    Translate image by a random offset up to range_ * image dimension.
+    Uses reflection border to avoid black edges.
+    """
     h, w = img.shape[:2]
-    dx = np.random.uniform(-range_ * w, range_ * w)
-    dy = np.random.uniform(-range_ * h, range_ * h)
-    matrix = np.float32([[1, 0, dx], [0, 1, dy]])
-    translated = cv2.warpAffine(img, matrix, (w, h), borderMode=cv2.BORDER_REFLECT_101)
-    return translated
+    tx = np.random.uniform(-range_ * w, range_ * w)
+    ty = np.random.uniform(-range_ * h, range_ * h)
+    # Affine translation matrix
+    M = np.float32([[1, 0, tx],
+                    [0, 1, ty]])
+    return cv2.warpAffine(img, M, (w, h), borderMode=cv2.BORDER_REFLECT_101)
 
 
-def augment_image(img: np.ndarray, seed: int = None) -> np.ndarray:
+def augment_image(img: np.ndarray) -> np.ndarray:
     """
-    Applies the 4 transformations in sequence:
-    1. Rotation (±15°)
-    2. Horizontal Flip (50% probability)
-    3. Brightness Adjustment (±20%)
-    4. Translation (±10% in x and y)
+    Apply all four augmentation transforms in sequence.
+    Each call produces a unique variant (driven by global np.random state).
     """
-    if seed is not None:
-        np.random.seed(seed)
-
-    x = rotate_image(img, angle_range=15.0)
-    x = flip_image(x, prob=0.5)
-    x = adjust_brightness(x, range_=0.2)
-    x = translate_image(x, range_=0.1)
-    return x
+    img = rotate_image(img)
+    img = flip_image(img)
+    img = adjust_brightness(img)
+    img = translate_image(img)
+    return img
 
 
-def process_dataset(raw_dir: str, aug_dir: str, num_aug: int = 4, seed: int = 42) -> dict:
+# ── Main pipeline ──────────────────────────────────────────────────────────────
+
+def run_augmentation(raw_dir: str, aug_dir: str, copies: int) -> None:
     """
-    Reads all raw images per class, copies the original, and generates
-    `num_aug` augmented copies. Returns a dict mapping class names to final counts.
+    For each class subfolder in raw_dir:
+      1. Copy the original image into aug_dir/{class}/
+      2. Generate `copies` augmented variants into the same folder.
     """
-    np.random.seed(seed)
-
     raw_path = Path(raw_dir)
     aug_path = Path(aug_dir)
 
     if not raw_path.exists():
-        raise FileNotFoundError(f"Raw directory does not exist: {raw_dir}")
+        raise FileNotFoundError(f"Raw directory not found: {raw_path}")
 
-    aug_path.mkdir(parents=True, exist_ok=True)
+    class_dirs = sorted([d for d in raw_path.iterdir() if d.is_dir()])
+    if not class_dirs:
+        raise RuntimeError(f"No class subdirectories found in: {raw_path}")
 
-    # Defect classes: subfolders in raw_dir
-    class_dirs = [d for d in raw_path.iterdir() if d.is_dir()]
-    class_dirs.sort(key=lambda d: d.name)
+    print(f"\n{'='*60}")
+    print(f"  NEU-DET Offline Augmentation (seed={SEED})")
+    print(f"  Source : {raw_path}")
+    print(f"  Output : {aug_path}")
+    print(f"  Copies : {copies} augmented variants per original")
+    print(f"{'='*60}\n")
 
-    counts = {}
+    total_written = 0
 
-    print("==================================================")
-    print(" Industrial Surface Defect Dataset Augmentation")
-    print("==================================================")
-    print(f"Source Directory: {raw_path.resolve()}")
-    print(f"Target Directory: {aug_path.resolve()}")
-    print(f"Augmentations per image: {num_aug}")
-    print(f"Classes found ({len(class_dirs)}): {[d.name for d in class_dirs]}")
-    print("--------------------------------------------------")
+    for class_dir in class_dirs:
+        class_name = class_dir.name
+        out_class_dir = aug_path / class_name
+        out_class_dir.mkdir(parents=True, exist_ok=True)
 
-    valid_extensions = {".bmp", ".jpg", ".jpeg", ".png"}
+        image_files = sorted(list(class_dir.glob("*.bmp")) +
+                             list(class_dir.glob("*.jpg")) +
+                             list(class_dir.glob("*.png")))
 
-    for cdir in class_dirs:
-        class_name = cdir.name
-        dst_class_dir = aug_path / class_name
-        dst_class_dir.mkdir(parents=True, exist_ok=True)
+        class_count = 0
 
-        image_files = [f for f in cdir.iterdir() if f.is_file() and f.suffix.lower() in valid_extensions]
-        image_files.sort(key=lambda f: f.name)
-
-        print(f"Processing class '{class_name}' ({len(image_files)} source images)...")
-
-        total_saved = 0
-        for idx, img_file in enumerate(image_files):
-            stem = img_file.stem
-            ext = img_file.suffix
-
-            # 1. Copy original file
-            dst_orig = dst_class_dir / f"{stem}{ext}"
-            shutil.copy2(img_file, dst_orig)
-            total_saved += 1
-
-            # 2. Read image for augmentation
-            img = cv2.imread(str(img_file), cv2.IMREAD_UNCHANGED)
+        for img_path in image_files:
+            # Read image — cv2 reads BMP natively; grayscale mode
+            img = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
             if img is None:
-                raise ValueError(f"Failed to read image: {img_file}")
+                print(f"  [WARN] Could not read: {img_path.name} — skipping")
+                continue
 
-            # 3. Generate augmented variants
-            for aug_i in range(1, num_aug + 1):
+            stem = img_path.stem          # e.g. "crazing_1"
+            suffix = img_path.suffix      # e.g. ".bmp"
+
+            # 1. Save original copy
+            orig_dest = out_class_dir / img_path.name
+            cv2.imwrite(str(orig_dest), img)
+            class_count += 1
+
+            # 2. Generate augmented copies
+            for i in range(1, copies + 1):
                 aug_img = augment_image(img)
-                dst_aug = dst_class_dir / f"{stem}_aug_{aug_i}{ext}"
-                cv2.imwrite(str(dst_aug), aug_img)
-                total_saved += 1
+                aug_name = f"{stem}_aug_{i}{suffix}"
+                cv2.imwrite(str(out_class_dir / aug_name), aug_img)
+                class_count += 1
 
-        counts[class_name] = total_saved
-        print(f"  -> Finished '{class_name}': {total_saved} images written to {dst_class_dir.resolve()}")
+        total_written += class_count
+        print(f"  [{class_name:>20}]  originals: {len(image_files):>4}  "
+              f"total written: {class_count:>5}")
 
-    print("--------------------------------------------------")
-    print("Final Counts per Class:")
-    total_all = 0
-    for cname, cnt in counts.items():
-        print(f"  - {cname:20s}: {cnt:5d} images")
-        total_all += cnt
-    print(f"Total Images in Augmented Dataset: {total_all}")
-    print("==================================================")
-    return counts
+    print(f"\n{'='*60}")
+    print(f"  Augmentation complete — {total_written} images written")
+    print(f"{'='*60}\n")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate augmented dataset for surface defect classification.")
+# ── Entry point ────────────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    # Resolve project root relative to this script's location
+    script_dir = Path(__file__).resolve().parent          # src/
+    project_root = script_dir.parent                      # project root
+
+    parser = argparse.ArgumentParser(
+        description="Offline augmentation for NEU Surface Defect dataset"
+    )
     parser.add_argument(
         "--raw_dir",
-        type=str,
-        default="data/raw/train/images",
-        help="Path to raw training images directory."
+        default=str(project_root / "data" / "raw" / "train" / "images"),
+        help="Path to raw training images directory (contains class subfolders)"
     )
     parser.add_argument(
         "--aug_dir",
-        type=str,
-        default="data/augmented/train",
-        help="Path to augmented training images directory."
+        default=str(project_root / "data" / "augmented" / "train"),
+        help="Output path for augmented images (class subfolders will be created)"
     )
     parser.add_argument(
-        "--num_aug",
+        "--copies",
         type=int,
         default=4,
-        help="Number of augmented copies to generate per image."
+        help="Number of augmented copies to generate per original image (default: 4)"
     )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility."
-    )
-
     args = parser.parse_args()
-    process_dataset(
-        raw_dir=args.raw_dir,
-        aug_dir=args.aug_dir,
-        num_aug=args.num_aug,
-        seed=args.seed
-    )
 
-
-if __name__ == "__main__":
-    main()
+    run_augmentation(args.raw_dir, args.aug_dir, args.copies)
