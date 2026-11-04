@@ -31,3 +31,4 @@ Grad-CAM overlay saved to: outputs/gradcam_sample_crazing.bmp
 
 ## Result
 Correctly identified crazing with 100% confidence. Heatmap overlay saved.
+

@@ -29,3 +29,4 @@
 cd d:\SysFolders\atulv\Desktop\Industrial_Surface_Defect_Classification
 streamlit run src/app.py
 ```
+
