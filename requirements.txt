@@ -1,0 +1,9 @@
+# Requirements — Industrial Surface Defect Classification
+# Install with: pip install -r requirements.txt
+
+tensorflow>=2.13.0
+streamlit>=1.28.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+Pillow>=10.0.0
