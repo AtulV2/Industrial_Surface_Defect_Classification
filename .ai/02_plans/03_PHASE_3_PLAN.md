@@ -18,3 +18,4 @@ def compute_gradcam(model, img_array, class_idx=None)
 
 ## Deliverable
 `src/gradcam.py` — importable module + standalone test block
+

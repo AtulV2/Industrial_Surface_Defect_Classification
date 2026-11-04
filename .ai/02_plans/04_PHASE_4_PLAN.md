@@ -14,3 +14,4 @@ Build a local Streamlit web app that accepts image uploads, predicts defect clas
 
 ## Deliverable
 `src/app.py`
+

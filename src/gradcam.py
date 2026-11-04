@@ -190,3 +190,4 @@ if __name__ == "__main__":
     out_path = output_dir / f"gradcam_sample_{sample_class}.bmp"
     cv2.imwrite(str(out_path), combined)
     print(f"Grad-CAM overlay saved to: {out_path}")
+

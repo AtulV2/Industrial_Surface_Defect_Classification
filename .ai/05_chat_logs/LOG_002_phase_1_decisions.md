@@ -22,3 +22,4 @@
 
 4. **Preservation of Original Images**:
    - Originals were copied directly via `shutil.copy2` to preserve metadata and avoid any lossy re-encoding artifacts.
+
