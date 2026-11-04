@@ -1,16 +1,14 @@
 # Current State
 
 **Last Updated:** 2026-11-04  
-**Current Phase:** PRE-PHASE — Master Roadmap pending user approval  
-**Status:** 🟡 AWAITING APPROVAL
-
-## Active Plan
-- Master Roadmap drafted in chat — not yet written to file system (awaiting approval)
+**Current Phase:** Phase 2 — Model Training (`src/train.py`)  
+**Status:** 🚀 EXECUTING PHASE 2 (Autopilot)
 
 ## Locked Phases
-_None yet._
+| Phase | Checkpoint | Commit |
+|---|---|---|
+| Phase 0 — Repo Setup | CHECKPOINT_001.md | aac7404 |
+| Phase 1 — Augmentation | CHECKPOINT_002.md | (pending commit) |
 
-## Pending
-- User approval of Master Roadmap draft
-- Then: Phase 1 plan draft for approval
-
+## Active Phase
+- **Phase 2 — Model Training**: Building MobileNetV2 hybrid architecture, training on 7,200 augmented images and validating on 360 raw images, saving `models/hybrid_defect_model.keras`.
