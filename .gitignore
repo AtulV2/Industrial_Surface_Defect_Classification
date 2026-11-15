@@ -1,5 +1,10 @@
 # .gitignore — Industrial Surface Defect Classification
 
+# Development process & AI governance prompts
+.ai/
+ai.md
+dl.md
+
 # Python bytecode and build artifacts
 __pycache__/
 *.py[cod]
