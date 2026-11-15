@@ -165,11 +165,10 @@ Industrial_Surface_Defect_Classification/
 ├── 📁 models/
 │   └── hybrid_defect_model.keras   ← Saved trained model
 │
-├── 📁 outputs/
-│   ├── training_history.png        ← Accuracy/loss curves
-│   └── gradcam_sample_*.bmp        ← Sample heatmap overlays
-│
-├── 📁 docs/                        ← Full documentation
+├── 📁 docs/                        ← Full documentation & visual verification assets
+│   ├── assets/                     ← Training plots and Grad-CAM sample overlays
+│   │   ├── training_history.png
+│   │   └── gradcam_sample_crazing.bmp
 │   ├── 01_PROJECT_OVERVIEW.md
 │   ├── 02_DATA_PIPELINE.md
 │   ├── 03_MODEL_ARCHITECTURE.md

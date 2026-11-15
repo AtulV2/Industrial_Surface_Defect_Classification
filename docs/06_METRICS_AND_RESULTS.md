@@ -37,8 +37,9 @@ Epoch 11/30:  loss: 0.0024  acc: 0.9994  val_loss: 0.0079  val_acc: 0.9972  (pat
 ```
 
 ### 📉 Accuracy & Loss Curves Plot
-A plot comparing training and validation accuracy/loss across epochs is automatically generated and saved at:
-- `outputs/training_history.png`
+A plot comparing training and validation accuracy/loss across epochs is shown below:
+
+![Training Accuracy and Loss History](assets/training_history.png)
 
 ---
 
@@ -52,10 +53,15 @@ Sample File:           data/raw/validation/images/crazing/crazing_241.jpg
 Ground Truth Defect:   crazing
 Predicted Defect:      crazing
 Model Confidence:      100.0%
-Heatmap Artifact:      outputs/gradcam_sample_crazing.bmp
+Heatmap Artifact:      docs/assets/gradcam_sample_crazing.bmp
 Result:                PASS — Defect localized accurately along micro-fissure line
 ================================================================================
 ```
+
+### Visual Verification Artifact
+Below is the verification composite showing the original steel surface on the left and the Grad-CAM activation heatmap overlay on the right:
+
+![Grad-CAM Explainability Verification](assets/gradcam_sample_crazing.bmp)
 
 ---
 

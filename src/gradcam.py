@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     model_path  = project_root / "models" / "hybrid_defect_model.keras"
     val_img_dir = project_root / "data" / "raw" / "validation" / "images"
-    output_dir  = project_root / "outputs"
+    output_dir  = project_root / "docs" / "assets"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # ── Load model ─────────────────────────────────────────────────────────────

@@ -34,7 +34,7 @@ PROJECT_ROOT = SCRIPT_DIR.parent                  # project root
 DEFAULT_AUG_DIR   = str(PROJECT_ROOT / "data" / "augmented" / "train")
 DEFAULT_VAL_DIR   = str(PROJECT_ROOT / "data" / "raw" / "validation" / "images")
 DEFAULT_MODEL_OUT = str(PROJECT_ROOT / "models" / "hybrid_defect_model.keras")
-DEFAULT_PLOT_OUT  = str(PROJECT_ROOT / "outputs" / "training_history.png")
+DEFAULT_PLOT_OUT  = str(PROJECT_ROOT / "docs" / "assets" / "training_history.png")
 
 # Class names must match the alphabetically sorted directory names
 CLASS_NAMES = [
