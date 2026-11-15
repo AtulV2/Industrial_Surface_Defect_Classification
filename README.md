@@ -176,9 +176,9 @@ Industrial_Surface_Defect_Classification/
 │   ├── 05_INFERENCE_FLOW.md
 │   └── 06_METRICS_AND_RESULTS.md
 │
-├── requirements.txt
+├── .gitignore
 ├── README.md
-└── CONTRIBUTING.md
+└── requirements.txt
 ```
 
 ---
