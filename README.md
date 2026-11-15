@@ -30,17 +30,52 @@ You upload a photo of a steel surface → the system tells you **what defect it 
 
 ---
 
-## ⚡ Quick Start
+## 🚀 How to Run & Quick Start
 
+### 1. Install Dependencies
 ```bash
-# 1. Install dependencies
 pip install -r requirements.txt
-
-# 2. Launch the web app (from project root)
-streamlit run src/app.py
 ```
 
-Then open **http://localhost:8501** in your browser and upload any surface image.
+### 2. Launch the Web App
+From the **project root**:
+```bash
+streamlit run src/app.py
+```
+Or directly from inside the **`src/` folder**:
+```bash
+streamlit run app.py
+```
+
+Streamlit will automatically open your default browser at **`http://localhost:8501`**.
+
+### 3. Step-by-Step Usage
+1. Open **http://localhost:8501** in your browser.
+2. Click **Browse files** and upload any `.bmp`, `.jpg`, or `.png` steel surface image (you can find ready-to-test images under `data/raw/validation/images/`).
+3. View the **predicted defect category** and **confidence score** at the top.
+4. Compare the **original grayscale image** on the left with the **Grad-CAM attention heatmap** on the right.
+5. Inspect the **confidence bar chart** across all 6 defect classes.
+6. To stop the web server, press `Ctrl + C` in your terminal.
+
+> **Note:** The application dynamically resolves paths relative to the script location, so it works whether executed from the project root or from inside `src/`.
+
+---
+
+### 🔄 How to Re-Train from Scratch (Optional)
+If you modify training data or hyperparameters and wish to re-train:
+```bash
+# Step 1: Pre-generate offline augmented training data (optional if data/augmented already exists)
+python src/augment.py
+
+# Step 2: Train the hybrid MobileNetV2 model and save best checkpoint
+python src/train.py
+
+# Step 3: Run standalone Grad-CAM test verification
+python src/gradcam.py
+
+# Step 4: Launch the Streamlit application
+streamlit run src/app.py
+```
 
 ---
 
