@@ -127,3 +127,4 @@ Where $z_y$ is the model's raw logit for ground truth category $y$.
 ### 3. Training Safeguards
 - **`ModelCheckpoint`**: Monitors `val_accuracy` and saves only the model checkpoint that achieves the highest validation score (`save_best_only=True`).
 - **`EarlyStopping`**: Monitors `val_accuracy` with `patience=5`. When 5 consecutive epochs show no improvement, training halts and weights from the peak epoch are automatically restored (`restore_best_weights=True`).
+

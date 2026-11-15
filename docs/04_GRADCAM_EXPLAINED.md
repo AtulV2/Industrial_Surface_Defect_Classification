@@ -135,3 +135,4 @@ sequenceDiagram
 | **Concentrated Red Area on Defect** | The model correctly identified the defect pattern. | High trust. Pass inspection flag. |
 | **Diffuse / Spread Out Colors** | Low confidence; model found ambiguous or faint features. | Flag for human secondary review. |
 | **Hotspot on Border or Glare** | False alert due to optical reflection or camera vignetting. | Adjust lighting / camera calibration. |
+

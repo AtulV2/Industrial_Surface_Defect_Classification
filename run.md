@@ -1,8 +1,14 @@
 Simple — just one command. Open a terminal in the project folder and run:
 
 ```bash
-cd "d:\SysFolders\atulv\Desktop\Industrial_Surface_Defect_Classification"
+cd "D:\SysFolders\atulv\Desktop\Project\Industrial_Surface_Defect_Classification"
 streamlit run src/app.py
+```
+
+Or directly from inside `src`:
+```bash
+cd "D:\SysFolders\atulv\Desktop\Project\Industrial_Surface_Defect_Classification\src"
+streamlit run app.py
 ```
 
 Streamlit will auto-open your browser at `http://localhost:8501`. Done!
@@ -36,7 +42,7 @@ Press `Ctrl + C` in the terminal.
 
 ---
 
-> **Note:** You must run from the project root (not from inside `src/`), otherwise the model path won't resolve correctly.
+> **Note:** The app automatically resolves the model path whether you run from the project root (`streamlit run src/app.py`) or from inside `src` (`streamlit run app.py`).
 
 ---
 

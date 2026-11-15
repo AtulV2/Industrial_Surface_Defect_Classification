@@ -134,3 +134,4 @@ sequenceDiagram
    - Grayscale BMP files or RGBA PNGs are automatically normalized to RGB 3-channel via `.convert("RGB")`.
 4. **Non-square or High-res Images**:
    - Any uploaded resolution is smoothly downsampled to $200 \times 200$ using the Lanczos anti-aliasing resampling filter.
+

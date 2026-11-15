@@ -69,3 +69,4 @@ Result:                PASS — Defect localized accurately along micro-fissure 
 2. **Mitigation of Overfitting**:
    - Freezing the base MobileNetV2 prevented catastrophic forgetting and overfitting.
    - The $0.5$ dropout layer and batch normalization in the custom classification head ensured regularized feature representations.
+

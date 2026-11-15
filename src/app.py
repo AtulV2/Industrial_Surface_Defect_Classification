@@ -33,8 +33,23 @@ if str(_SRC_DIR) not in sys.path:
 from gradcam import compute_gradcam   # noqa: E402
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-# Path is relative to project root (where `streamlit run` is executed from)
-MODEL_PATH = Path("models") / "hybrid_defect_model.keras"
+_PROJECT_ROOT = _SRC_DIR.parent
+
+# Robust model path resolution: works whether run from root or from src/
+_CANDIDATE_PATHS = [
+    _PROJECT_ROOT / "models" / "hybrid_defect_model.keras",
+    Path("models") / "hybrid_defect_model.keras",
+    Path("../models") / "hybrid_defect_model.keras",
+    _SRC_DIR / "models" / "hybrid_defect_model.keras",
+]
+
+def get_model_path() -> Path:
+    for p in _CANDIDATE_PATHS:
+        if p.exists():
+            return p.resolve()
+    return (_PROJECT_ROOT / "models" / "hybrid_defect_model.keras").resolve()
+
+MODEL_PATH = get_model_path()
 
 CLASS_NAMES = [
     "crazing", "inclusion", "patches",
@@ -58,13 +73,15 @@ IMAGE_SIZE = (200, 200)
 @st.cache_resource(show_spinner="Loading model…")
 def load_model() -> tf.keras.Model:
     """Load and cache the trained Keras model."""
-    if not MODEL_PATH.exists():
+    resolved_path = get_model_path()
+    if not resolved_path.exists():
         st.error(
-            f"Model file not found at `{MODEL_PATH}`.\n\n"
+            f"Model file not found at `{resolved_path}`.\n\n"
+            f"Searched locations:\n" + "\n".join(f"- `{p}`" for p in _CANDIDATE_PATHS) + "\n\n"
             "Please run `python src/train.py` first to train and save the model."
         )
         st.stop()
-    return tf.keras.models.load_model(str(MODEL_PATH))
+    return tf.keras.models.load_model(str(resolved_path))
 
 
 # ── Image preprocessing ────────────────────────────────────────────────────────

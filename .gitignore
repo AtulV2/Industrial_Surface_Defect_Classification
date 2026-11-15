@@ -1,6 +1,6 @@
 # .gitignore — Industrial Surface Defect Classification
 
-# Python
+# Python bytecode and build artifacts
 __pycache__/
 *.py[cod]
 *.pyo
@@ -17,34 +17,27 @@ env/
 .venv/
 .env/
 
-# Environment / Secrets
+# Environment variables & secrets
 .env
 *.env
 
-# TensorFlow / Keras model files (large binaries — stored separately)
-models/*.keras
-models/*.h5
+# Streamlit local settings & secrets
+.streamlit/secrets.toml
 
-# Dataset (large — not committed to git)
-data/raw/
-data/augmented/
-
-# Outputs (generated files)
-outputs/
-
-# Jupyter Notebooks checkpoints
-.ipynb_checkpoints/
-
-# IDE
+# IDE & Editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
+ehthumbs.db
 
-# Streamlit
-.streamlit/secrets.toml
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
 
+# Temporary files and logs
+*.log
+*.tmp
